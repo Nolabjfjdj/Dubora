@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Dubora",
+    "slug": "dubora",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "dubora",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nolabjfjdj.dubora"
+    },
+    "android": {
+      "package": "com.nolabjfjdj.dubora"
+    }
+  }
+}
