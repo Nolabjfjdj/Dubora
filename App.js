@@ -24,6 +24,34 @@ function VideoPreview({ source }) {
   return <VideoView player={player} style={styles.video} nativeControls />;
 }
 
+function RecorderControls({ onRecorded }) {
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const [recording, setRecording] = useState(false);
+
+  async function toggleRecording() {
+    try {
+      if (recording) {
+        await recorder.stop();
+        onRecorded(recorder.uri);
+        setRecording(false);
+        return;
+      }
+      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true });
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+      setRecording(true);
+    } catch {
+      setRecording(false);
+    }
+  }
+
+  return (
+    <Pressable style={[styles.recordButton, recording && styles.recordingButton]} onPress={toggleRecording}>
+      <Text style={styles.recordText}>{recording ? "Arrêter" : "Enregistrer"}</Text>
+    </Pressable>
+  );
+}
+
 async function setWorkspaceOrientation(value) {
   await ScreenOrientation.lockAsync(
     value === "landscape"
@@ -35,22 +63,12 @@ async function setWorkspaceOrientation(value) {
 export default function App() {
   const { width, height } = useWindowDimensions();
   const [video, setVideo] = useState(null);
-  const [recording, setRecording] = useState(false);
   const [audioUri, setAudioUri] = useState(null);
   const [orientation, setOrientation] = useState("landscape");
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [showAppearance, setShowAppearance] = useState(false);
   const [phrase, setPhrase] = useState("Votre phrase de doublage apparaîtra ici.");
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const isLandscape = width >= height;
-
-  useEffect(() => {
-    setAudioModeAsync({ playsInSilentMode: true, allowsRecording: true });
-    setWorkspaceOrientation("landscape");
-    return () => {
-      ScreenOrientation.unlockAsync();
-    };
-  }, []);
 
   async function pickVideo() {
     const result = await DocumentPicker.getDocumentAsync({
@@ -61,18 +79,6 @@ export default function App() {
     if (!result.canceled) {
       setVideo(result.assets[0]);
     }
-  }
-
-  async function toggleRecording() {
-    if (recording) {
-      await recorder.stop();
-      setAudioUri(recorder.uri);
-      setRecording(false);
-      return;
-    }
-    await recorder.prepareToRecordAsync();
-    recorder.record();
-    setRecording(true);
   }
 
   async function changeOrientation(value) {
@@ -138,11 +144,7 @@ export default function App() {
                 <Pressable style={styles.primaryButton} onPress={pickVideo}>
                   <Text style={styles.primaryText}>Importer</Text>
                 </Pressable>
-                {video ? (
-                  <Pressable style={[styles.recordButton, recording && styles.recordingButton]} onPress={toggleRecording}>
-                    <Text style={styles.recordText}>{recording ? "Arrêter" : "Enregistrer"}</Text>
-                  </Pressable>
-                ) : null}
+                {video ? <RecorderControls onRecorded={setAudioUri} /> : null}
               </View>
               {audioUri ? <View style={styles.status}><Text style={styles.statusTitle}>Prise enregistrée</Text><Text style={styles.statusText}>La piste audio est prête pour la suite du montage.</Text></View> : null}
             </View>
@@ -165,7 +167,7 @@ export default function App() {
             </View>
             <TextInput value={phrase} onChangeText={setPhrase} multiline placeholder="Texte à lire" placeholderTextColor="#6f7682" style={styles.phraseInput} />
             <Pressable style={styles.primaryButton} onPress={pickVideo}><Text style={styles.primaryText}>Importer une vidéo</Text></Pressable>
-            {video ? <Pressable style={[styles.recordButton, recording && styles.recordingButton]} onPress={toggleRecording}><Text style={styles.recordText}>{recording ? "Arrêter l'enregistrement" : "Enregistrer le doublage"}</Text></Pressable> : null}
+            {video ? <RecorderControls onRecorded={setAudioUri} /> : null}
           </>
         )}
 
