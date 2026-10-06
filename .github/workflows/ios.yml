@@ -15,7 +15,8 @@ jobs:
         with:
           node-version: 22
       - run: npm install
-      - run: npx expo prebuild --platform ios --no-install
+      - run: npx expo install --fix
+      - run: npx expo prebuild --platform ios --clean --no-install
       - run: npx pod-install ios
       - run: xcodebuild -workspace ios/Dubora.xcworkspace -scheme Dubora -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
       - run: mkdir -p Payload
