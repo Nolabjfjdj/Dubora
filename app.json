@@ -6,6 +6,7 @@
     "orientation": "default",
     "scheme": "dubora",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.nolabjfjdj.dubora"
