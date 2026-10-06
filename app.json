@@ -3,7 +3,7 @@
     "name": "Dubora",
     "slug": "dubora",
     "version": "0.1.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "scheme": "dubora",
     "userInterfaceStyle": "automatic",
     "ios": {
