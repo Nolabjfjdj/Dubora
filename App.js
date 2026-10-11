@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as DocumentPicker from "expo-document-picker";
 import { Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from "react-native";
 
 const COLORS = ["#ffffff", "#ffe082", "#80deea", "#f8bbd0", "#c5e1a5"];
@@ -9,6 +10,7 @@ const WEIGHTS = ["400", "500", "600", "700", "800"];
 export default function App() {
   const { width, height } = useWindowDimensions();
   const [phrase, setPhrase] = useState("");
+  const [videoAsset, setVideoAsset] = useState(null);
   const [fontSize, setFontSize] = useState(32);
   const [fontWeight, setFontWeight] = useState("700");
   const [italic, setItalic] = useState(false);
@@ -20,6 +22,21 @@ export default function App() {
   const [shadow, setShadow] = useState(true);
   const [showAppearance, setShowAppearance] = useState(false);
   const isLandscape = width > height;
+
+  async function pickVideo() {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "video/*",
+        copyToCacheDirectory: true,
+        multiple: false
+      });
+      if (!result.canceled && result.assets && result.assets[0]) {
+        setVideoAsset(result.assets[0]);
+      }
+    } catch (error) {
+      Alert.alert("Importation impossible", "Dubora n’a pas pu ouvrir le sélecteur vidéo. Réessaie avec une autre vidéo.");
+    }
+  }
 
   function comingSoon(feature) {
     Alert.alert("Dubora", feature + " sera reconnecté dans la prochaine étape. Nous validons d'abord l'interface iOS pour éviter de réintroduire le crash de démarrage.");
@@ -64,11 +81,11 @@ export default function App() {
               <Text style={styles.sectionTitle}>Aperçu vidéo</Text>
               <Text style={styles.sectionHint}>16:9</Text>
             </View>
-            <Pressable style={styles.videoPlaceholder} onPress={() => comingSoon("L'importation et la lecture vidéo")}>
-              <View style={styles.playCircle}><Text style={styles.playIcon}>▶</Text></View>
-              <Text style={styles.placeholderTitle}>Ajoute ta vidéo</Text>
-              <Text style={styles.placeholderText}>Choisis une vidéo pour préparer ton doublage.</Text>
-              <View style={styles.importButton}><Text style={styles.importButtonText}>＋ Importer une vidéo</Text></View>
+            <Pressable style={styles.videoPlaceholder} onPress={pickVideo}>
+              <View style={styles.playCircle}><Text style={styles.playIcon}>{videoAsset ? "✓" : "▶"}</Text></View>
+              <Text style={styles.placeholderTitle}>{videoAsset ? "Vidéo importée" : "Ajoute ta vidéo"}</Text>
+              <Text style={styles.placeholderText}>{videoAsset ? videoAsset.name : "Choisis une vidéo depuis tes fichiers pour préparer ton doublage."}</Text>
+              <View style={styles.importButton}><Text style={styles.importButtonText}>{videoAsset ? "↻ Changer la vidéo" : "＋ Importer une vidéo"}</Text></View>
             </Pressable>
             <View style={styles.mediaNote}><Text style={styles.noteIcon}>✦</Text><Text style={styles.mediaNoteText}>Paysage privilégié pour travailler confortablement.</Text></View>
           </View>
