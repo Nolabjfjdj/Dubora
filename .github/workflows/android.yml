@@ -22,8 +22,8 @@ jobs:
       - run: npx expo-doctor
       - run: npx expo prebuild --platform android --clean --no-install
       - run: chmod +x android/gradlew
-      - run: cd android && ./gradlew assembleDebug --no-daemon
+      - run: cd android && ./gradlew assembleRelease --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: dubora-android-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: dubora-android-release
+          path: android/app/build/outputs/apk/release/app-release.apk
