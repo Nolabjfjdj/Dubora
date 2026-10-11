@@ -14,11 +14,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager --install "ndk;27.1.12297006" "platform-tools" "platforms;android-36"
       - run: npm install
       - run: npx expo install --fix
+      - run: npx expo-doctor
       - run: npx expo prebuild --platform android --clean --no-install
       - run: chmod +x android/gradlew
-      - run: cd android && ./gradlew assembleDebug
+      - run: cd android && ./gradlew assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: dubora-android-debug
